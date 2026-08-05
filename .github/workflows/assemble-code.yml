@@ -1,0 +1,61 @@
+name: Assemble experimental code
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/assemble-code.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Reconstruct and validate uploaded code
+        shell: bash
+        run: |
+          cat \
+            .code_parts/part00.b64 \
+            .code_parts/part01.b64 \
+            .code_parts/part02.b64 \
+            .code_parts/part03.b64 \
+            .code_parts/part04a.b64 \
+            .code_parts/part04b.b64 \
+            .code_parts/part05a.b64 \
+            .code_parts/part05b.b64 \
+            .code_parts/part06a.b64 \
+            .code_parts/part06b.b64 \
+            .code_parts/part07.b64 \
+            | tr -d '\n\r ' | base64 --decode > /tmp/CACC_Experiment_Code.zip
+          unzip -t /tmp/CACC_Experiment_Code.zip
+          unzip -o /tmp/CACC_Experiment_Code.zip -d .
+          python -m py_compile experiments/*.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          notebook = json.loads(Path('CACC_Code.ipynb').read_text(encoding='utf-8'))
+          assert notebook.get('nbformat') == 4
+          for index, cell in enumerate(notebook.get('cells', []), start=1):
+              if cell.get('cell_type') == 'code':
+                  compile(''.join(cell.get('source', [])), f'<cell {index}>', 'exec')
+          print('Notebook and scenario scripts validated successfully.')
+          PY
+
+      - name: Commit reconstructed source files
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CACC_Code.ipynb experiments requirements.txt
+          if git diff --cached --quiet; then
+            echo "No source changes to commit."
+          else
+            git commit -m "Add Safe PF-CACC experimental code"
+            git push
+          fi
