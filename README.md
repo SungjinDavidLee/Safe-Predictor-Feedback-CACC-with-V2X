@@ -47,17 +47,22 @@ The full paper provides the baseline definitions, vehicle parameters, V2X assump
 ├── CACC_Code.ipynb
 ├── requirements.txt
 └── experiments
+    ├── __init__.py
     ├── scenario1_heterogeneous_passenger.py
     ├── scenario2_emergency_vehicle.py
     └── scenario3_truck_platooning.py
 ```
 
-- `CACC_Code.ipynb` is a lightweight notebook for running the three experiment scripts.
+- `CACC_Code.ipynb` is the cleaned version of the attached experimental notebook and contains all three complete simulation scenarios.
 - `experiments/scenario1_heterogeneous_passenger.py` implements the heterogeneous passenger-vehicle platoon.
 - `experiments/scenario2_emergency_vehicle.py` implements the high-speed emergency-vehicle platoon.
 - `experiments/scenario3_truck_platooning.py` implements the heavy-duty truck platoon with actuator limits.
 
-The simulation scripts include Safe IV Distance calculation, time-varying V2X latency, low-pass-filtered headway scheduling, predictor-feedback control, performance analysis, static plots, and HTML animations.
+The standalone Python scripts were extracted from the three notebook code cells. They include Safe IV Distance calculation, time-varying V2X latency, low-pass-filtered headway scheduling, predictor-feedback control, performance analysis, static plots, and HTML animations.
+
+### Code Preparation Note
+
+The attached notebook contained large embedded plot and JavaScript-animation outputs. To keep the repository compact and cloneable, only generated outputs and execution counts were removed. The source code was preserved, and each scenario is additionally provided as a standalone Python script.
 
 ## Installation
 
